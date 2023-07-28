@@ -15,7 +15,9 @@ pub async fn execute_main_module(rt: &mut JsRuntime, path: impl AsRef<str>) -> R
     let url = resolve_url_or_path("", path)?;
     let id = rt.load_main_module(&url, None).await?;
     let mut receiver = rt.mod_evaluate(id);
-    let timer = tokio::time::sleep(Duration::from_millis(100));
+
+    // 执行js脚本的超时时间(目前不是很准确, 包含了网络请求等待的时间)
+    let timeout = tokio::time::sleep(Duration::from_millis(100));
     let fut = async move {
         loop {
             tokio::select! {
@@ -28,9 +30,9 @@ pub async fn execute_main_module(rt: &mut JsRuntime, path: impl AsRef<str>) -> R
     };
 
     tokio::select! {
-
         ret = fut => ret,
-        _ = timer => Err(anyhow!("js script timeout"))
+        // 超时
+        _ = timeout => Err(anyhow!("js script timeout"))
     }
 }
 
