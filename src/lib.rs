@@ -8,6 +8,7 @@ use deno_core::{
 };
 use serde::de::DeserializeOwned;
 
+pub mod module;
 pub mod ops;
 
 pub async fn execute_main_module(rt: &mut JsRuntime, path: impl AsRef<str>) -> Result<()> {
